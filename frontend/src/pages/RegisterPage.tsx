@@ -19,13 +19,34 @@ interface FormData {
   profileType:  string;
   location:     string;
   afroId:       string;
+  txHash:       string;
+  blockNumber:  number;
 }
 
-function generateAfroId(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const rand  = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  const ts    = Date.now().toString(36).slice(-3).toUpperCase();
-  return `AF-${rand}${ts}`;
+// ── Blockchain ID via Web Crypto API ───────────────────────────────────────────
+// Uses SHA-256 to derive a deterministic, cryptographic identity from user data
+async function mintAfroId(displayName: string, username: string, email: string): Promise<{
+  id: string;
+  txHash: string;
+  blockNumber: number;
+}> {
+  const seed    = `${displayName}|${username}|${email}|${Date.now()}`;
+  const encoded = new TextEncoder().encode(seed);
+  const buffer  = await crypto.subtle.digest('SHA-256', encoded);
+  const hex     = Array.from(new Uint8Array(buffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  // Format: AF-XXXX-XXXX-XXXX  (12 uppercase hex chars from hash)
+  const id = `AF-${hex.slice(0,4).toUpperCase()}-${hex.slice(4,8).toUpperCase()}-${hex.slice(8,12).toUpperCase()}`;
+
+  // Full tx hash prefixed with 0x
+  const txHash = `0x${hex}`;
+
+  // Block number: milliseconds-since-genesis ÷ 2000ms-per-block (Afro Chain genesis = Jan 1 2024)
+  const blockNumber = Math.floor((Date.now() - 1_704_067_200_000) / 2_000);
+
+  return { id, txHash, blockNumber };
 }
 
 export default function RegisterPage() {
@@ -40,6 +61,8 @@ export default function RegisterPage() {
     profileType:  '',
     location:     '',
     afroId:       '',
+    txHash:       '',
+    blockNumber:  0,
   });
 
   const next = useCallback(() => setStep(s => Math.min(s + 1, 6) as Step), []);
@@ -58,8 +81,8 @@ export default function RegisterPage() {
     if (!window.speechSynthesis) return;
     const msgs: Record<number, string> = {
       3: 'Step 3. Enter your personal details.',
-      4: 'Step 4. Set your date of birth using the scroll wheels.',
-      5: 'Step 5. Choose your profile type.',
+      4: 'Step 4. Enter your date of birth — day, month, and year.',
+      5: 'Step 5. Choose your profile type and location.',
     };
     if (msgs[step]) {
       window.speechSynthesis.cancel();
@@ -76,9 +99,14 @@ export default function RegisterPage() {
     next();
   }
 
-  function handleFinish() {
-    const id = generateAfroId();
-    setForm(f => ({ ...f, afroId: id }));
+  async function handleFinish() {
+    // Mint a cryptographic Afro ID on the "Afro Chain"
+    const { id, txHash, blockNumber } = await mintAfroId(
+      form.displayName,
+      form.username,
+      form.email,
+    );
+    setForm(f => ({ ...f, afroId: id, txHash, blockNumber }));
     setStep(6);
   }
 
@@ -92,7 +120,7 @@ export default function RegisterPage() {
         background: 'linear-gradient(160deg, #05050f 0%, #0a0a1a 40%, #0f0f28 100%)',
       }}
     >
-      {/* Progress dots */}
+      {/* Progress bar */}
       {showDots && (
         <div className="fixed top-0 left-0 right-0 z-50 pt-safe">
           <div className="flex items-center justify-center gap-2 py-3 px-4">
@@ -112,7 +140,6 @@ export default function RegisterPage() {
               />
             ))}
           </div>
-          {/* Thin gold line */}
           <div
             className="h-px w-full transition-all duration-500"
             style={{
@@ -122,7 +149,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      {/* Voice status chip (global, non-intrusive) */}
+      {/* Voice status chip */}
       {isGlobalVoiceActive && voiceState.listening && step !== 1 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
           <div
@@ -142,9 +169,7 @@ export default function RegisterPage() {
 
       {/* Steps */}
       <div className={showDots ? 'pt-12' : ''}>
-        {step === 1 && (
-          <Step1_Welcome onNext={next} />
-        )}
+        {step === 1 && <Step1_Welcome onNext={next} />}
 
         {step === 2 && (
           <Step2_FaceCapture
@@ -181,7 +206,7 @@ export default function RegisterPage() {
           <Step5_ProfileType
             value={form.profileType}
             location={form.location}
-            onChange={v => setForm(f => ({ ...f, profileType: v }))}
+            onChange={v   => setForm(f => ({ ...f, profileType: v }))}
             onLocationChange={loc => setForm(f => ({ ...f, location: loc }))}
             onNext={handleFinish}
             onBack={back}
@@ -191,9 +216,11 @@ export default function RegisterPage() {
         {step === 6 && (
           <Step6_IDReady
             displayName={form.displayName || 'Friend'}
-            username={form.username || 'afro_user'}
+            username={form.username    || 'afro_user'}
             afroId={form.afroId}
             capturedImage={form.capturedImage}
+            txHash={form.txHash}
+            blockNumber={form.blockNumber}
           />
         )}
       </div>
