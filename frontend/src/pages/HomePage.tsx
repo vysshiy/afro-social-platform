@@ -1,34 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Button from '../components/ui/Button';
 
-const FEED_ITEMS = [
-  { id: 1, user: 'Amara O.', handle: '@amara_okonkwo', time: '2m', text: 'Just joined Afro Social! 🎉 Excited to connect with the community.', likes: 12, emoji: '✊🏿' },
-  { id: 2, user: 'Kwame A.', handle: '@kwame_asante', time: '15m', text: 'Beautiful Lagos sunset 🌅 Nothing beats home.', likes: 47, emoji: '🌍' },
-  { id: 3, user: 'Zuri N.', handle: '@zuri_nkosi',   time: '1h', text: 'African fashion week was 🔥 The designs were incredible this year.', likes: 103, emoji: '👑' },
+const FEED = [
+  {
+    id: 1, user: 'Amara Okonkwo', handle: '@amara', time: '2m',
+    avatar: '✊🏿', avatarBg: 'rgba(212,160,23,0.2)', avatarBorder: 'rgba(212,160,23,0.4)',
+    text: 'Just joined Afro Social! 🎉 Excited to connect with this incredible community.',
+    likes: 12, comments: 3, image: null, tag: '#NewMember',
+  },
+  {
+    id: 2, user: 'Kwame Asante', handle: '@kwame_creates', time: '18m',
+    avatar: '🎨', avatarBg: 'rgba(139,92,246,0.2)', avatarBorder: 'rgba(139,92,246,0.4)',
+    text: 'Lagos Fashion Week 2026 was everything 🔥 The designs, the culture, the energy — unmatched.',
+    likes: 147, comments: 24, image: null, tag: '#AfroFashion',
+  },
+  {
+    id: 3, user: 'Zuri Nkosi', handle: '@zuri_vibes', time: '1h',
+    avatar: '🌍', avatarBg: 'rgba(16,185,129,0.2)', avatarBorder: 'rgba(16,185,129,0.4)',
+    text: 'Afrobeats concert last night had me in tears 😭🎶 The music, the people — this culture is everything.',
+    likes: 328, comments: 51, image: null, tag: '#Afrobeats',
+  },
+  {
+    id: 4, user: 'Temi Adeyemi', handle: '@temi_builds', time: '3h',
+    avatar: '💡', avatarBg: 'rgba(245,158,11,0.2)', avatarBorder: 'rgba(245,158,11,0.4)',
+    text: 'African tech founders are BUILDING 🚀 So proud to see the ecosystem growing every single day.',
+    likes: 89, comments: 17, image: null, tag: '#AfroTech',
+  },
+];
+
+const STORIES = [
+  { name: 'Your Story', emoji: '➕', bg: 'rgba(212,160,23,0.15)', border: '#d4a017', isAdd: true },
+  { name: 'Amara',      emoji: '✊🏿',  bg: 'rgba(212,160,23,0.1)', border: 'rgba(212,160,23,0.5)', isAdd: false },
+  { name: 'Kwame',      emoji: '🎨',  bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.5)', isAdd: false },
+  { name: 'Zuri',       emoji: '🌍',  bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.5)', isAdd: false },
+  { name: 'Temi',       emoji: '💡',  bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.5)', isAdd: false },
+  { name: 'Lola',       emoji: '💃',  bg: 'rgba(239,68,68,0.1)',  border: 'rgba(239,68,68,0.5)',  isAdd: false },
+];
+
+const NAV = [
+  { icon: '🏠', label: 'Home'    },
+  { icon: '🔍', label: 'Explore' },
+  { icon: '➕', label: 'Post'    },
+  { icon: '🔔', label: 'Notifs'  },
+  { icon: '👤', label: 'Profile' },
 ];
 
 export default function HomePage() {
+  const [activeNav, setActiveNav] = useState(0);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+
+  function toggleLike(id: number) {
+    setLikedPosts(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
   return (
     <div
       className="min-h-screen"
-      style={{ background: 'linear-gradient(160deg, #0a0a1a 0%, #0f0f2a 100%)' }}
+      style={{ background: 'linear-gradient(160deg,#05050f 0%,#0a0a1a 100%)' }}
     >
-      {/* Nav */}
+      {/* ── Top nav ── */}
       <header
-        className="sticky top-0 z-50 px-5 py-3 flex items-center justify-between"
+        className="sticky top-0 z-50 flex items-center justify-between px-5 py-3"
         style={{
-          background: 'rgba(10,10,26,0.85)',
-          backdropFilter: 'blur(12px)',
+          background: 'rgba(5,5,15,0.88)',
+          backdropFilter: 'blur(16px)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
         <div className="flex items-center gap-2">
           <span className="text-2xl">✊🏿</span>
           <span
-            className="text-lg font-bold"
+            className="text-xl font-bold"
             style={{
-              background: 'linear-gradient(135deg, #d4a017, #f59e0b)',
+              background: 'linear-gradient(135deg,#d4a017,#f59e0b)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
@@ -37,121 +85,221 @@ export default function HomePage() {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <button className="text-white/50 hover:text-white text-xl transition">🔔</button>
-          <button className="text-white/50 hover:text-white text-xl transition">💬</button>
-          <div className="w-8 h-8 rounded-full bg-afro-700 flex items-center justify-center text-sm font-bold text-afro-gold border border-afro-gold/30">
+          <button
+            className="relative w-9 h-9 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <span className="text-xl">💬</span>
+            <span
+              className="absolute top-1 right-1 w-2 h-2 rounded-full"
+              style={{ background: '#d4a017' }}
+            />
+          </button>
+          <Link
+            to="/register"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold border"
+            style={{
+              background: 'linear-gradient(135deg,#d4a017,#8b6508)',
+              borderColor: 'rgba(212,160,23,0.4)',
+              color: '#05050f',
+            }}
+          >
             A
-          </div>
+          </Link>
         </div>
       </header>
 
-      {/* Welcome banner */}
-      <div
-        className="mx-4 mt-5 rounded-2xl px-5 py-4 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #1a1a3e 0%, #252550 100%)',
-          border: '1px solid rgba(212,160,23,0.25)',
-        }}
-      >
-        <div className="absolute right-4 top-4 text-4xl opacity-20">🌍</div>
-        <p className="text-xs text-afro-gold/70 uppercase tracking-widest mb-1 font-medium">Welcome</p>
-        <h1 className="text-2xl font-bold text-white mb-1">Your Feed 🏠</h1>
-        <p className="text-sm text-white/50">Connect with the global African community</p>
-      </div>
-
-      {/* Stories row */}
-      <div className="px-4 mt-5">
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {['You', 'Amara', 'Kwame', 'Zuri', 'Temi', 'Lolo'].map((name, i) => (
-            <div key={name} className="flex flex-col items-center gap-1 flex-shrink-0">
+      {/* ── Stories ── */}
+      <div className="px-4 pt-4">
+        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+          {STORIES.map((s, i) => (
+            <button key={s.name} className="flex flex-col items-center gap-1.5 flex-shrink-0 group">
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-2xl border-2"
+                className="w-16 h-16 rounded-full flex items-center justify-center text-2xl transition-transform group-hover:scale-105"
                 style={{
-                  borderColor: i === 0 ? '#d4a017' : 'rgba(255,255,255,0.15)',
-                  background: `hsl(${i * 40}, 50%, 20%)`,
+                  background: s.bg,
+                  border: `2.5px solid ${s.border}`,
+                  boxShadow: `0 0 12px ${s.border.replace('0.5', '0.2')}`,
                 }}
               >
-                {['✊🏿','👤','🌟','🎨','🔥','💫'][i]}
+                {s.emoji}
               </div>
-              <span className="text-xs text-white/50">{name}</span>
-            </div>
+              <span className="text-[11px] text-white/50 max-w-[58px] text-center leading-tight truncate">
+                {s.name}
+              </span>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Post composer */}
-      <div className="mx-4 mt-5 glass-card px-4 py-3 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-afro-700 flex items-center justify-center text-lg border border-afro-gold/30 flex-shrink-0">
+      {/* ── Post composer ── */}
+      <div
+        className="mx-4 mt-3 flex items-center gap-3 px-4 py-3 rounded-2xl"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <div
+          className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg,#d4a017,#8b6508)' }}
+        >
           ✊🏿
         </div>
         <button
-          className="flex-1 text-left text-white/35 text-sm px-3 py-2 rounded-xl"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+          className="flex-1 text-left px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            color: 'rgba(255,255,255,0.3)',
+          }}
         >
           What's on your mind?
         </button>
-        <button className="text-white/40 hover:text-afro-gold text-xl transition">📸</button>
+        <button className="text-xl text-white/35 hover:text-afro-gold transition-colors">📸</button>
       </div>
 
-      {/* Feed */}
-      <div className="px-4 mt-4 space-y-3 pb-24">
-        {FEED_ITEMS.map(item => (
-          <div key={item.id} className="glass-card px-4 py-4">
-            <div className="flex items-center gap-3 mb-3">
+      {/* ── Feed ── */}
+      <div className="px-4 mt-3 space-y-3 pb-28">
+        {FEED.map(post => {
+          const liked = likedPosts.has(post.id);
+          return (
+            <article
+              key={post.id}
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.07)',
+              }}
+            >
+              <div className="px-4 pt-4 pb-3">
+                {/* Post header */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+                    style={{ background: post.avatarBg, border: `1.5px solid ${post.avatarBorder}` }}
+                  >
+                    {post.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm text-white">{post.user}</span>
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                        style={{ background: 'rgba(212,160,23,0.12)', color: '#d4a017', border: '1px solid rgba(212,160,23,0.2)' }}
+                      >
+                        {post.tag}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/38">{post.handle} · {post.time} ago</p>
+                  </div>
+                  <button className="text-white/25 hover:text-white/60 text-xl leading-none">⋯</button>
+                </div>
+
+                {/* Post text */}
+                <p className="text-sm text-white/85 leading-relaxed">{post.text}</p>
+              </div>
+
+              {/* Actions */}
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-                style={{ background: 'rgba(212,160,23,0.15)', border: '1px solid rgba(212,160,23,0.2)' }}
+                className="flex items-center gap-1 px-3 py-2.5"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
               >
-                {item.emoji}
+                <button
+                  onClick={() => toggleLike(post.id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
+                  style={{
+                    background: liked ? 'rgba(239,68,68,0.12)' : 'transparent',
+                    color: liked ? '#f87171' : 'rgba(255,255,255,0.4)',
+                  }}
+                >
+                  {liked ? '❤️' : '🤍'} {post.likes + (liked ? 1 : 0)}
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-white/40 hover:text-white/70 hover:bg-white/5 transition-all">
+                  💬 {post.comments}
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-white/40 hover:text-white/70 hover:bg-white/5 transition-all">
+                  🔁 Share
+                </button>
+                <div className="flex-1" />
+                <button className="px-2 py-1.5 rounded-xl text-xs text-white/30 hover:text-white/60 hover:bg-white/5 transition-all">
+                  🔖
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-sm">{item.user}</p>
-                <p className="text-xs text-white/40">{item.handle} · {item.time} ago</p>
-              </div>
-              <button className="text-white/30 hover:text-white/60 text-lg">⋯</button>
-            </div>
-            <p className="text-sm text-white/85 leading-relaxed mb-3">{item.text}</p>
-            <div className="flex items-center gap-5 pt-2 border-t border-white/5">
-              <button className="flex items-center gap-1.5 text-xs text-white/40 hover:text-red-400 transition">
-                ❤️ {item.likes}
-              </button>
-              <button className="flex items-center gap-1.5 text-xs text-white/40 hover:text-blue-400 transition">
-                💬 Reply
-              </button>
-              <button className="flex items-center gap-1.5 text-xs text-white/40 hover:text-green-400 transition">
-                🔁 Share
-              </button>
-            </div>
-          </div>
-        ))}
+            </article>
+          );
+        })}
+
+        {/* Load more */}
+        <div className="text-center py-4">
+          <button className="text-xs text-white/30 hover:text-white/60 transition-colors">
+            Load more posts
+          </button>
+        </div>
       </div>
 
-      {/* Bottom nav */}
+      {/* ── Bottom nav ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 flex justify-around items-center px-2 py-3 z-50"
+        className="fixed bottom-0 left-0 right-0 z-50"
         style={{
-          background: 'rgba(10,10,26,0.95)',
-          backdropFilter: 'blur(16px)',
+          background: 'rgba(5,5,15,0.95)',
+          backdropFilter: 'blur(20px)',
           borderTop: '1px solid rgba(255,255,255,0.07)',
         }}
       >
-        {[
-          { icon: '🏠', label: 'Home',    active: true  },
-          { icon: '🔍', label: 'Explore', active: false },
-          { icon: '➕', label: 'Post',    active: false },
-          { icon: '📣', label: 'Notifs',  active: false },
-          { icon: '👤', label: 'Profile', active: false },
-        ].map(nav => (
-          <button
-            key={nav.label}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
-              nav.active ? 'text-afro-gold' : 'text-white/35 hover:text-white/70'
-            }`}
-          >
-            <span className="text-xl">{nav.icon}</span>
-            <span className="text-[10px] font-medium">{nav.label}</span>
-          </button>
-        ))}
+        <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
+          {NAV.map((n, i) => {
+            const isActive = i === activeNav;
+            const isPost   = i === 2;
+            return (
+              <button
+                key={n.label}
+                onClick={() => setActiveNav(i)}
+                className="relative flex flex-col items-center gap-0.5 transition-all duration-150"
+                style={{
+                  minWidth: 56,
+                  padding: isPost ? 0 : '6px 8px',
+                }}
+              >
+                {isPost ? (
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl -mt-4 shadow-lg"
+                    style={{
+                      background: 'linear-gradient(135deg,#d4a017,#f59e0b)',
+                      boxShadow: '0 4px 20px rgba(212,160,23,0.4)',
+                      color: '#05050f',
+                    }}
+                  >
+                    {n.icon}
+                  </div>
+                ) : (
+                  <>
+                    <span
+                      className="text-2xl transition-transform duration-150"
+                      style={{
+                        transform: isActive ? 'scale(1.15)' : 'scale(1)',
+                        filter: isActive ? 'none' : 'grayscale(0.3) opacity(0.5)',
+                      }}
+                    >
+                      {n.icon}
+                    </span>
+                    <span
+                      className="text-[10px] font-medium"
+                      style={{ color: isActive ? '#d4a017' : 'rgba(255,255,255,0.35)' }}
+                    >
+                      {n.label}
+                    </span>
+                    {isActive && (
+                      <div
+                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                        style={{ background: '#d4a017' }}
+                      />
+                    )}
+                  </>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
