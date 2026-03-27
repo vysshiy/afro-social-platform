@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Button from '../ui/Button';
-import Dropdown from '../ui/Dropdown';
 
 interface Props {
   value:            string;
@@ -38,24 +37,194 @@ const PROFILE_TYPES = [
   },
 ];
 
-const LOCATIONS = [
-  { value: '',      label: 'Select your country…' },
-  { value: 'NG',    label: '🇳🇬 Nigeria'          },
-  { value: 'GH',    label: '🇬🇭 Ghana'            },
-  { value: 'KE',    label: '🇰🇪 Kenya'            },
-  { value: 'ZA',    label: '🇿🇦 South Africa'     },
-  { value: 'ET',    label: '🇪🇹 Ethiopia'         },
-  { value: 'TZ',    label: '🇹🇿 Tanzania'         },
-  { value: 'EG',    label: '🇪🇬 Egypt'            },
-  { value: 'CM',    label: '🇨🇲 Cameroon'         },
-  { value: 'CI',    label: "🇨🇮 Côte d'Ivoire"   },
-  { value: 'SN',    label: '🇸🇳 Senegal'          },
-  { value: 'UG',    label: '🇺🇬 Uganda'           },
-  { value: 'RW',    label: '🇷🇼 Rwanda'           },
-  { value: 'MA',    label: '🇲🇦 Morocco'          },
-  { value: 'OTHER', label: '🌍 Diaspora / Other'  },
+// ── Country data: flag + name separated so we can display them clearly ─────
+const COUNTRIES = [
+  { value: 'NG', flag: '🇳🇬', name: 'Nigeria'        },
+  { value: 'GH', flag: '🇬🇭', name: 'Ghana'          },
+  { value: 'KE', flag: '🇰🇪', name: 'Kenya'          },
+  { value: 'ZA', flag: '🇿🇦', name: 'South Africa'   },
+  { value: 'ET', flag: '🇪🇹', name: 'Ethiopia'       },
+  { value: 'TZ', flag: '🇹🇿', name: 'Tanzania'       },
+  { value: 'EG', flag: '🇪🇬', name: 'Egypt'          },
+  { value: 'CM', flag: '🇨🇲', name: 'Cameroon'       },
+  { value: 'CI', flag: '🇨🇮', name: "Côte d'Ivoire"  },
+  { value: 'SN', flag: '🇸🇳', name: 'Senegal'        },
+  { value: 'UG', flag: '🇺🇬', name: 'Uganda'         },
+  { value: 'RW', flag: '🇷🇼', name: 'Rwanda'         },
+  { value: 'MA', flag: '🇲🇦', name: 'Morocco'        },
+  { value: 'TN', flag: '🇹🇳', name: 'Tunisia'        },
+  { value: 'DZ', flag: '🇩🇿', name: 'Algeria'        },
+  { value: 'SD', flag: '🇸🇩', name: 'Sudan'          },
+  { value: 'AO', flag: '🇦🇴', name: 'Angola'         },
+  { value: 'MZ', flag: '🇲🇿', name: 'Mozambique'     },
+  { value: 'ZM', flag: '🇿🇲', name: 'Zambia'         },
+  { value: 'ZW', flag: '🇿🇼', name: 'Zimbabwe'       },
+  { value: 'OTHER', flag: '🌍', name: 'Diaspora / Other' },
 ];
 
+// ── Inline country picker with search ────────────────────────────────────────
+function CountryPicker({
+  value, onChange,
+}: { value: string; onChange: (v: string) => void }) {
+  const [query, setQuery] = useState('');
+
+  const list = COUNTRIES.filter(c =>
+    !query || c.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const selected = COUNTRIES.find(c => c.value === value);
+
+  return (
+    <div>
+      {/* Search box */}
+      <div
+        className="relative mb-3"
+        style={{ position: 'relative' }}
+      >
+        <span
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-base pointer-events-none"
+          style={{ color: 'rgba(255,255,255,0.35)' }}
+        >
+          🔍
+        </span>
+        <input
+          type="text"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Search country…"
+          style={{
+            width:          '100%',
+            padding:        '11px 14px 11px 38px',
+            borderRadius:   12,
+            fontSize:       14,
+            outline:        'none',
+            background:     'rgba(255,255,255,0.05)',
+            border:         '1px solid rgba(255,255,255,0.1)',
+            color:          '#fff',
+            transition:     'border-color 0.2s',
+          }}
+          onFocus={e => { e.currentTarget.style.borderColor = '#d4a017'; }}
+          onBlur={e  => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Selected banner */}
+      {selected && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-3"
+          style={{
+            background: 'rgba(212,160,23,0.1)',
+            border:     '1px solid rgba(212,160,23,0.35)',
+          }}
+        >
+          <span style={{ fontSize: 26 }}>{selected.flag}</span>
+          <div>
+            <p className="text-xs" style={{ color: 'rgba(212,160,23,0.8)' }}>Selected</p>
+            <p className="text-sm font-semibold text-white">{selected.name}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="ml-auto text-xs px-2 py-1 rounded-lg"
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              color:      'rgba(255,255,255,0.4)',
+              border:     '1px solid rgba(255,255,255,0.1)',
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* Country list */}
+      <div
+        style={{
+          maxHeight:    220,
+          overflowY:    'auto',
+          borderRadius: 14,
+          border:       '1px solid rgba(255,255,255,0.08)',
+          background:   'rgba(255,255,255,0.02)',
+        }}
+      >
+        {list.length === 0 ? (
+          <div
+            className="text-center py-6 text-sm"
+            style={{ color: 'rgba(255,255,255,0.35)' }}
+          >
+            No countries match "{query}"
+          </div>
+        ) : (
+          list.map((c, i) => {
+            const isSelected = value === c.value;
+            return (
+              <button
+                key={c.value}
+                type="button"
+                onClick={() => onChange(c.value)}
+                className="w-full flex items-center gap-3 text-left transition-all"
+                style={{
+                  padding:      '12px 16px',
+                  borderBottom: i < list.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                  background:   isSelected ? 'rgba(212,160,23,0.12)' : 'transparent',
+                  borderLeft:   isSelected ? '3px solid #d4a017' : '3px solid transparent',
+                }}
+                onMouseEnter={e => {
+                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)';
+                }}
+                onMouseLeave={e => {
+                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
+              >
+                {/* Flag — large, clearly visible */}
+                <span
+                  style={{
+                    fontSize:   26,
+                    lineHeight: 1,
+                    flexShrink: 0,
+                    width:      34,
+                    textAlign:  'center',
+                  }}
+                >
+                  {c.flag}
+                </span>
+
+                {/* Country name */}
+                <span
+                  style={{
+                    fontSize:   15,
+                    fontWeight: isSelected ? 600 : 400,
+                    color:      isSelected ? '#d4a017' : '#ffffff',
+                    flex:       1,
+                  }}
+                >
+                  {c.name}
+                </span>
+
+                {/* Check */}
+                {isSelected && (
+                  <span style={{ color: '#d4a017', fontSize: 16, flexShrink: 0 }}>✓</span>
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main step ─────────────────────────────────────────────────────────────────
 export default function Step5_ProfileType({
   value, location, onChange, onLocationChange, onNext, onBack,
 }: Props) {
@@ -72,9 +241,12 @@ export default function Step5_ProfileType({
       className="flex flex-col min-h-screen px-5 py-8 animate-fade-in"
       style={{ background: 'linear-gradient(180deg, #05050f 0%, #0a0a1a 100%)' }}
     >
+      {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white">Your Profile</h2>
-        <p className="text-sm text-white/45 mt-1">How will you mainly use Afro Social?</p>
+        <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          How will you mainly use Afro Social?
+        </p>
       </div>
 
       {/* Profile type cards */}
@@ -88,7 +260,7 @@ export default function Step5_ProfileType({
               onClick={() => { onChange(pt.value); setError(''); }}
               className="w-full text-left transition-all duration-200 rounded-2xl overflow-hidden"
               style={{
-                background: isSelected ? pt.bg : 'rgba(255,255,255,0.03)',
+                background: isSelected ? pt.bg   : 'rgba(255,255,255,0.03)',
                 border:     `2px solid ${isSelected ? pt.color : 'rgba(255,255,255,0.07)'}`,
                 boxShadow:  isSelected ? `0 0 20px ${pt.color}22` : 'none',
               }}
@@ -102,18 +274,14 @@ export default function Step5_ProfileType({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-white text-sm">{pt.title}</p>
-                  <p className="text-xs text-white/50 mt-0.5">{pt.desc}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>{pt.desc}</p>
                 </div>
-                {/* Radio circle */}
                 <div
                   className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
                   style={{ borderColor: isSelected ? pt.color : 'rgba(255,255,255,0.2)' }}
                 >
                   {isSelected && (
-                    <div
-                      className="w-2.5 h-2.5 rounded-full transition-transform scale-in"
-                      style={{ background: pt.color }}
-                    />
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: pt.color }} />
                   )}
                 </div>
               </div>
@@ -122,24 +290,32 @@ export default function Step5_ProfileType({
         })}
       </div>
 
-      {/* Location — custom dropdown, no native select */}
-      <div className="mb-2">
-        <label className="block text-sm font-medium text-white/60 mb-2">
-          Location
-          <span className="text-white/30 text-xs font-normal ml-1">(optional)</span>
-        </label>
-        <Dropdown
-          value={location}
-          onChange={onLocationChange}
-          options={LOCATIONS.filter(l => l.value !== '').map(l => ({ value: l.value, label: l.label }))}
-          placeholder="Select your country…"
-        />
+      {/* Location heading */}
+      <div className="mb-3">
+        <div className="flex items-center gap-2 mb-3">
+          <p className="text-sm font-semibold text-white">Location</p>
+          <span
+            className="text-xs px-2 py-0.5 rounded-full"
+            style={{
+              background: 'rgba(255,255,255,0.07)',
+              color:      'rgba(255,255,255,0.4)',
+              border:     '1px solid rgba(255,255,255,0.1)',
+            }}
+          >
+            optional
+          </span>
+        </div>
+        <CountryPicker value={location} onChange={onLocationChange} />
       </div>
 
       {error && (
         <p
           className="text-sm px-4 py-2.5 rounded-xl mt-2"
-          style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.28)', color: '#fca5a5' }}
+          style={{
+            background: 'rgba(239,68,68,0.12)',
+            border:     '1px solid rgba(239,68,68,0.28)',
+            color:      '#fca5a5',
+          }}
         >
           {error}
         </p>
