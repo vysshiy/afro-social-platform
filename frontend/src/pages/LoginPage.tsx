@@ -95,6 +95,16 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Forgot password */}
+        <div className="text-right -mt-1">
+          <span
+            className="text-xs cursor-pointer hover:underline"
+            style={{ color: 'rgba(212,160,23,0.75)' }}
+          >
+            Forgot password?
+          </span>
+        </div>
+
         {error && (
           <div className="text-sm text-red-400 text-center py-2 px-3 rounded-xl bg-red-500/10 border border-red-500/20">
             {error}
@@ -104,9 +114,31 @@ export default function LoginPage() {
         <Button type="submit" size="lg" fullWidth loading={loading} className="mt-2">
           Sign In
         </Button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 mt-2">
+          <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>or</span>
+          <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+        </div>
+
+        {/* Social login placeholder */}
+        <button
+          type="button"
+          className="w-full py-3 rounded-2xl text-sm font-medium transition-all"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border:     '1px solid rgba(255,255,255,0.1)',
+            color:      'rgba(255,255,255,0.65)',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.09)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; }}
+        >
+          🌍 Continue with Afro ID
+        </button>
       </form>
 
-      <p className="mt-8 text-sm text-white/40 text-center">
+      <p className="mt-6 text-sm text-white/40 text-center">
         Don't have an account?{' '}
         <Link to="/register" className="text-afro-gold hover:underline font-medium">
           Create one
