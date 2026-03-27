@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Step1_Welcome     from '../components/steps/Step1_Welcome';
 import Step2_FaceCapture from '../components/steps/Step2_FaceCapture';
-import Step3_BasicInfo   from '../components/steps/Step3_BasicInfo';
+import Step3_BasicInfo, { type BasicInfo } from '../components/steps/Step3_BasicInfo';
 import Step4_DateOfBirth from '../components/steps/Step4_DateOfBirth';
 import Step5_ProfileType from '../components/steps/Step5_ProfileType';
 import Step6_IDReady     from '../components/steps/Step6_IDReady';
@@ -13,6 +13,7 @@ interface FormData {
   capturedImage: string | null;
   displayName:  string;
   username:     string;
+  phone:        string;
   email:        string;
   password:     string;
   dob:          { day: number; month: number; year: number };
@@ -55,6 +56,7 @@ export default function RegisterPage() {
     capturedImage: null,
     displayName:  '',
     username:     '',
+    phone:        '',
     email:        '',
     password:     '',
     dob:          { day: 1, month: 1, year: 2000 },
@@ -184,10 +186,11 @@ export default function RegisterPage() {
             data={{
               displayName: form.displayName,
               username:    form.username,
+              phone:       form.phone,
               email:       form.email,
               password:    form.password,
-            }}
-            onChange={d => setForm(f => ({ ...f, ...d }))}
+            } as BasicInfo}
+            onChange={(d: BasicInfo) => setForm(f => ({ ...f, ...d }))}
             onNext={next}
             onBack={back}
           />
