@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from '../ui/Button';
+import Dropdown from '../ui/Dropdown';
 
 interface Props {
   value:            string;
@@ -121,57 +122,18 @@ export default function Step5_ProfileType({
         })}
       </div>
 
-      {/* Location — dark select, fully visible */}
+      {/* Location — custom dropdown, no native select */}
       <div className="mb-2">
         <label className="block text-sm font-medium text-white/60 mb-2">
           Location
           <span className="text-white/30 text-xs font-normal ml-1">(optional)</span>
         </label>
-        <div className="relative">
-          <select
-            value={location}
-            onChange={e => onLocationChange(e.target.value)}
-            style={{
-              width:            '100%',
-              padding:          '12px 44px 12px 16px',
-              borderRadius:     14,
-              fontSize:         14,
-              outline:          'none',
-              cursor:           'pointer',
-              appearance:       'none',
-              WebkitAppearance: 'none',
-              MozAppearance:    'none',
-              /* Dark background — fixes white-on-white visibility */
-              backgroundColor:  '#131330',
-              color:            location ? '#ffffff' : 'rgba(255,255,255,0.38)',
-              border:           '1px solid rgba(255,255,255,0.12)',
-              transition:       'border-color 0.2s',
-            }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#d4a017'; }}
-            onBlur={e  => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
-          >
-            {LOCATIONS.map(l => (
-              <option
-                key={l.value}
-                value={l.value}
-                disabled={!l.value}
-                style={{ background: '#131330', color: l.value ? '#fff' : 'rgba(255,255,255,0.4)' }}
-              >
-                {l.label}
-              </option>
-            ))}
-          </select>
-          {/* Custom chevron */}
-          <span
-            className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
-            style={{ color: 'rgba(255,255,255,0.4)' }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-        </div>
+        <Dropdown
+          value={location}
+          onChange={onLocationChange}
+          options={LOCATIONS.filter(l => l.value !== '').map(l => ({ value: l.value, label: l.label }))}
+          placeholder="Select your country…"
+        />
       </div>
 
       {error && (
